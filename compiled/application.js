@@ -8,8 +8,7 @@
       console.log("Video app initialized");
       window.video_router = new Video.VideoRouter();
       window.Video.root_path = "http://localhost:8080/restapi/api/";
-      Backbone.history.start();
-      return console.log("asdsd1sssdasdst");
+      return Backbone.history.start();
     }
   };
 
@@ -53,6 +52,7 @@
       "": "index",
       "home": "index",
       "videos": "my_videos",
+      "upload": "index",
       "videos/view/:id": "view"
     };
 
@@ -261,18 +261,18 @@
                 $(".popup").html("");
                 return self.render_main_menu();
               } else {
-                $(self.el).find(".js-status").html("Invalid email or password.");
+                $(self.el).find(".js-status").show().html("Invalid email or password.");
                 return self.show_errors();
               }
             }
           });
         } else {
           $(self.el).find(".js-login-email").addClass("error");
-          return $(self.el).find(".js-status").html("Invalid email address.");
+          return $(self.el).find(".js-status").show().html("Invalid email address.");
         }
       } else {
         self.show_errors();
-        return $(self.el).find(".js-status").html("Fill all required fields.");
+        return $(self.el).find(".js-status").show().html("Fill all required fields.");
       }
     };
 
@@ -298,8 +298,6 @@
     }
 
     MainMenu.prototype.template = "#main_menu_tpl";
-
-    MainMenu.prototype.className = "main-menu";
 
     MainMenu.prototype.initialize = function() {
       _.bindAll(this, "render");
@@ -354,7 +352,7 @@
       return MainVideo.__super__.constructor.apply(this, arguments);
     }
 
-    MainVideo.prototype.template = "#video_tpl";
+    MainVideo.prototype.template = "#main_video_tpl";
 
     MainVideo.prototype.className = "video";
 
@@ -393,6 +391,37 @@
 
   })(Backbone.View);
 
+  Video.MyVideo = (function(_super) {
+
+    __extends(MyVideo, _super);
+
+    function MyVideo() {
+      return MyVideo.__super__.constructor.apply(this, arguments);
+    }
+
+    MyVideo.prototype.template = "#video_tpl";
+
+    MyVideo.prototype.className = "my-video";
+
+    MyVideo.prototype.initialize = function() {
+      return _.bindAll(this, "render");
+    };
+
+    MyVideo.prototype.render = function() {
+      var container, template, video;
+      container = $(this.el);
+      video = this.options.video;
+      template = _.template($(this.template).html(), {
+        video: video
+      });
+      container.html(template);
+      return this;
+    };
+
+    return MyVideo;
+
+  })(Backbone.View);
+
   Video.MyVideos = (function(_super) {
 
     __extends(MyVideos, _super);
@@ -410,15 +439,16 @@
     };
 
     MyVideos.prototype.render = function() {
-      var container, self;
+      var container, template;
       container = $(this.el);
-      self = this;
+      template = _.template($(this.template).html());
+      container.html(template);
       this.collection.each(function(item) {
-        var template;
-        template = _.template($(self.template).html(), {
+        var view;
+        view = new Video.MyVideo({
           video: item
         });
-        return $(container).append(template);
+        return $(container).append(view.render().el);
       });
       return this;
     };
@@ -485,14 +515,14 @@
             });
           } else {
             $(this.el).find(".js-register-email").addClass("error");
-            return $(self.el).find(".js-status").html("Invalid email address.");
+            return $(self.el).find(".js-status").show().html("Invalid email address.");
           }
         } else {
           self.show_errors();
-          return $(self.el).find(".js-status").html("Passwords do not match");
+          return $(self.el).find(".js-status").show().html("Passwords do not match");
         }
       } else {
-        $(self.el).find(".js-status").html("Fill all required fields.");
+        $(self.el).find(".js-status").show().html("Fill all required fields.");
         return self.show_errors();
       }
     };
@@ -528,11 +558,14 @@
     };
 
     UploadForm.prototype.events = {
-      "click .js-upload-cancel": "cancel"
+      "click .js-upload-cancel": "cancel",
+      "click .js-upload-confirm": "confirm"
     };
 
     UploadForm.prototype.render = function() {
-      var container, template;
+      var container, self, template;
+      self = this;
+      self.id = 0;
       container = $(this.el);
       template = _.template($(this.template).html());
       container.html(template);
@@ -542,23 +575,66 @@
           console.log("add");
           data.form.context.action = window.Video.root_path + "videos/create?token=" + localStorage.token;
           console.log(data);
-          return data.submit();
+          data.submit();
+          container.find(".js-status").show().html("Starting upload.");
+          container.find(".js-upload-confirm").show();
+          return container.find(".video-metadata").show();
         },
         progress: function(e, data) {
+          container.find(".js-status").show().html("Uploading...");
           return console.log('progress');
         },
         fail: function(e, data) {
-          return console.log('fail');
+          console.log('fail');
+          container.find(".js-upload-confirm").hide();
+          container.find(".js-status").show().html("Error.");
+          return container.find(".video-metadata").hide();
         },
         done: function(e, data) {
-          return console.log(data.result);
+          console.log(data.result);
+          self.id = data.result[0].id;
+          console.log(self.id);
+          container.find(".js-status").show().html("Upload successful.");
+          container.find(".js-upload-confirm").show();
+          return container.find(".video-metadata").show();
         }
       });
       return this;
     };
 
     UploadForm.prototype.cancel = function(e) {
+      var self;
+      console.log("cancel");
+      self = this;
+      e.preventDefault();
       return $(".popup").html("");
+    };
+
+    UploadForm.prototype.confirm = function(e) {
+      var description, self, title, video;
+      console.log("confirm");
+      e.preventDefault();
+      self = this;
+      title = $(self.el).find(".js-video-title").val();
+      description = $(self.el).find(".js-video-description").val();
+      if (title !== "") {
+        video = new Video.VideoModel();
+        video.url = window.Video.root_path + "videos/" + self.id + "?token=" + localStorage.token;
+        video.set({
+          id: self.id,
+          title: title,
+          description: description,
+          confirmed: "1"
+        });
+        return video.save(null, {
+          success: function() {
+            window.location = "#videos/view/" + video.id;
+            return $(".popup").html("");
+          }
+        });
+      } else {
+        return $(self.el).find(".js-video-title").addClass("error");
+      }
     };
 
     return UploadForm;

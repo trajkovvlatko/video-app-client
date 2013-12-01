@@ -1,11 +1,12 @@
 <html>
   <head>
-    <link href="css/style.css" rel="stylesheet" type="text/css">
-    <script type="text/javascript" src="vendor/jquery.js"></script>
-    <script type="text/javascript" src="vendor/jquery.ui.widget.js"></script>
-    <script type="text/javascript" src="vendor/jquery.fileupload.js"></script>
-    <script type="text/javascript" src="vendor/underscore.js"></script>
-    <script type="text/javascript" src="vendor/backbone.js"></script>
+    <link href="stylesheets/style.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu:regular,bold&subset=Latin">
+    <script type="text/javascript" src="vendor/javascripts/jquery.js"></script>
+    <script type="text/javascript" src="vendor/javascripts/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="vendor/javascripts/jquery.fileupload.js"></script>
+    <script type="text/javascript" src="vendor/javascripts/underscore.js"></script>
+    <script type="text/javascript" src="vendor/javascripts/backbone.js"></script>
     <script type="text/javascript" src="compiled/application.js"></script>
     <script type="text/javascript">
       $(document).ready(function(){
@@ -16,6 +17,7 @@
   <body>
     <div class="top">
       <div class="logo">
+        <img src="http://placehold.it/350x120" alt="" />
       </div>
       <div class="video-container">
       </div>
@@ -32,7 +34,7 @@
     <div class="popup">
     </div>
 
-    <script id="video_tpl" type="text/template">
+    <script id="main_video_tpl" type="text/template">
       <div class="title"><h3><%= video.get("title") %></h3></div>
       <video width="100%" height="80%" controls>
         <source src="/<%= video.get('video_file') %>" type="video/mp4">
@@ -46,45 +48,80 @@
     </script>
 
     <script id="main_menu_tpl" type="text/template">
-      <a href="#home">Home</a>
-      <% if(localStorage.token){ %>
-        <a href="#home" class="main-menu-item logout js-logout">Logout</span>
-        <a href="#upload" class="main-menu-item upload js-upload">Upload</span>
-        <a href="#videos" class="main-menu-item my-videos js-my-videos">My Videos</span>
-      <% } else { %>
-        <a href="#home" class="main-menu-item login js-login">Login</span>
-        <a href="#home" class="main-menu-item register js-register">Register</span>
-      <% } %>
+      <ul class="main-menu">
+        <li class="main-menu-item">
+          <a href="#home">Home</a>
+        </li>
+        <% if(localStorage.token){ %>
+          <li class="main-menu-item">
+            <a href="#home" class="logout js-logout">Logout</a>
+          </li>
+          <li class="main-menu-item">
+            <a href="#upload" class="upload js-upload">Upload</a>
+          </li>
+          <li class="main-menu-item">
+            <a href="#videos" class="my-videos js-my-videos">My Videos</a>
+          </li>
+        <% } else { %>
+          <li class="main-menu-item">
+            <a href="#home" class="login js-login">Login</a>
+          </li>
+          <li class="main-menu-item">
+            <a href="#home" class="register js-register">Register</a>
+          </li>
+        <% } %>
+      </ul>
     </script>
 
     <script id="login_form_tpl" type="text/template">
-      <input type="text" class="js-login-email" placeholder="Email" value="user@example.com" />
-      <input type="password" class="js-login-password" placeholder="Password" value="password" />
-      <input type="button" class="js-login-submit" value="Login" />
-      <input type="button" class="js-login-cancel" value="Cancel" />
-      <span class="js-status">
-      </span>
+      <h3>Login</h3>
+      <div>
+        <input type="text" class="js-login-email" placeholder="Email" value="user@example.com" />
+        <input type="password" class="js-login-password" placeholder="Password" value="password" />
+      </div>
+      <div class="js-status status"></div>
+      <div class="actions">
+        <button class="js-login-submit">Login</button>
+        <button class="js-login-cancel">Cancel</button>
+      </div>
     </script>
 
     <script id="register_form_tpl" type="text/template">
-      <input type="text" class="js-register-email" placeholder="Email" />
-      <input type="password" class="js-register-password" placeholder="Password" />
-      <input type="password" class="js-register-confirm-password" placeholder="Confirm password" />
-      <input type="button" class="js-register-submit" value="Register" />
-      <input type="button" class="js-register-cancel" value="Cancel" />
-      <span class="js-status">
-      </span>
+      <h3>Register</h3>
+      <div>
+        <input type="text" class="js-register-email" placeholder="Email" />
+        <input type="password" class="js-register-password" placeholder="Password" />
+        <input type="password" class="js-register-confirm-password" placeholder="Confirm password" />
+      </div>
+      <div class="js-status status"></div>
+      <div class="actions">
+        <button class="js-register-submit">Register</button>
+        <button class="js-register-cancel">Cancel</button>
+      </div>
     </script>
 
     <script id="upload_form_tpl" type="text/template">
       <form method="POST" class="js-upload-form">
-        <input type="file" class="js-upload-file" name="file" />
-        <input type="button" class="js-upload-submit" value="Upload" />
-        <input type="button" class="js-upload-cancel" value="Cancel" />
+        <h3>Upload video</h3>
+        <div>
+          <input type="file" class="js-upload-file" name="file" />
+        </div>
+        <div class="js-status status"></div>
+        <div class="video-metadata hidden">
+          <input type="text" class="js-video-title" placeholder="Title" />
+          <textarea class="js-video-description" placeholder="Description"></textarea>
+        </div>
+        <div class="actions">
+          <button class="js-upload-confirm hidden">Confirm</button>
+          <button class="js-upload-cancel">Cancel</button>
+        </div>
       </form>
     </script>
 
     <script id="videos_tpl" type="text/template">
+      <h3>My Videos</h3>
+    </script>
+    <script id="video_tpl" type="text/template">
       <a class="my-videos-item" href="#videos/view/<%= video.get('id') %>">
         <div class="preview">
           <video width="200px" height="130px">
@@ -96,10 +133,14 @@
           <h3><%= video.get("title") %></h3>
         </div>
         <div class="description">
-          <%= video.get("description") %>
+          <% if(video.get("description").length > 20){ %>
+            <%= video.get("description").substr(0, 20) + "..." %>
+          <% }else{ %>
+            <%= video.get("description") %>
+          <% } %>
         </div>
         <div class="created_at">
-          Uploaded at: <%= video.get("created_at") %>
+          Uploaded: <%= video.get("created_at").substr(0, 10) %>
         </div>
       </a>
     </script>

@@ -4,6 +4,7 @@ class Video.VideoRouter extends Backbone.Router
     "" : "index"
     "home" : "index"
     "videos" : "my_videos"
+    "upload" : "index"
     "videos/view/:id" : "view"
 
   initialize: ->

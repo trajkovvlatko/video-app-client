@@ -7,8 +7,9 @@ class Video.MyVideos extends Backbone.View
 
   render: ->
     container = $(@el)
-    self = @
+    template = _.template( $(@template).html() )
+    container.html(template)
     @collection.each (item) ->
-      template = _.template( $(self.template).html(), { video: item } )
-      $(container).append(template)
+      view = new Video.MyVideo({ video: item })
+      $(container).append view.render().el
     this

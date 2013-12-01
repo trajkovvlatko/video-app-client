@@ -37,12 +37,12 @@ class Video.RegisterForm extends Backbone.View
                 $(".popup").html @login_form.render().el
         else
           $(@el).find(".js-register-email").addClass "error"
-          $(self.el).find(".js-status").html "Invalid email address."
+          $(self.el).find(".js-status").show().html("Invalid email address.")
       else
         self.show_errors()
-        $(self.el).find(".js-status").html "Passwords do not match"
+        $(self.el).find(".js-status").show().html("Passwords do not match")
     else
-      $(self.el).find(".js-status").html "Fill all required fields."
+      $(self.el).find(".js-status").show().html("Fill all required fields.")
       self.show_errors()
 
   cancel: (e) ->

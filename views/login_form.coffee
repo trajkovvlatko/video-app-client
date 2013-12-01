@@ -44,14 +44,14 @@ class Video.LoginForm extends Backbone.View
               $(".popup").html ""
               self.render_main_menu()
             else
-              $(self.el).find(".js-status").html "Invalid email or password."
+              $(self.el).find(".js-status").show().html("Invalid email or password.")
               self.show_errors()
       else
         $(self.el).find(".js-login-email").addClass "error"
-        $(self.el).find(".js-status").html "Invalid email address."
+        $(self.el).find(".js-status").show().html "Invalid email address."
     else
       self.show_errors()
-      $(self.el).find(".js-status").html "Fill all required fields."
+      $(self.el).find(".js-status").show().html "Fill all required fields."
 
   cancel: (e) ->
     $(".popup").html ""

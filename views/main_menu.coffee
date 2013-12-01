@@ -1,6 +1,5 @@
 class Video.MainMenu extends Backbone.View
   template: "#main_menu_tpl"
-  className: "main-menu"
 
   initialize: ->
     _.bindAll this, "render"

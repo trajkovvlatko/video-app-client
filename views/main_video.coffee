@@ -1,5 +1,5 @@
 class Video.MainVideo extends Backbone.View
-  template: "#video_tpl"
+  template: "#main_video_tpl"
   className: "video"
 
   initialize: ->
