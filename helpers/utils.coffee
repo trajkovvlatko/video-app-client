@@ -10,9 +10,13 @@ Video.Utils = {
 
   render_featured_videos: ->
     $(".featured-container").html ""
-    for i in [0..3]
-      @featured_video = new Video.FeaturedVideo()
-      $(".featured-container").append @featured_video.render().el
+    videos = new Video.Videos()
+    videos.url = window.Video.root_path + "videos/featured"
+    videos.fetch
+      success: ->
+        videos.each (video) ->
+          @featured_video = new Video.FeaturedVideo(video: video)
+          $(".featured-container").append @featured_video.render().el
 
   render_defaults: ->
     @render_main_menu()

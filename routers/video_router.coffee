@@ -4,6 +4,7 @@ class Video.VideoRouter extends Backbone.Router
     "" : "index"
     "home" : "index"
     "videos" : "my_videos"
+    "admin_videos" : "admin_videos"
     "upload" : "index"
     "videos/view/:id" : "view"
 
@@ -16,13 +17,26 @@ class Video.VideoRouter extends Backbone.Router
 
   my_videos: ->
     console.log "my videos"
+    action = "my_videos"
+    @render_index_videos(action)
+
+  admin_videos: ->
+    action = "admin_videos"
+    @render_index_videos(action)
+
+  render_index_videos: (action) ->
+    console.log "render_index_videos"
     @render_main_menu()
     @render_featured_videos()
     @videos = new Video.Videos()
-    @videos.url = window.Video.root_path + "videos/index?token=" + localStorage.token
+    @videos.url = window.Video.root_path + "videos/#{action}?token=" + localStorage.token
     @videos.fetch
       success: =>
-        @my_videos_view = new Video.MyVideos({ collection: @videos })
+        console.log action
+        if action == "admin_videos"
+          @my_videos_view = new Video.AdminVideos({ collection: @videos })
+        else
+          @my_videos_view = new Video.MyVideos({ collection: @videos })
         $(".video-container").html @my_videos_view.render().el
 
   view: (id) ->

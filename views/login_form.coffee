@@ -41,6 +41,9 @@ class Video.LoginForm extends Backbone.View
           success: ->
             if user.get(0) && user.get(1)
               localStorage.token = user.get(1).token
+              localStorage.user_type = user.get(1).user_type
+              localStorage.email = user.get(1).email
+              localStorage.name = user.get(1).name
               $(".popup").html ""
               self.render_main_menu()
             else

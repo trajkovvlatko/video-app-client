@@ -44,7 +44,13 @@
     </script>
 
     <script id="featured_video_tpl" type="text/template">
-      featured video
+      <a href="#videos/view/<%= video.get('id') %>">
+        <video width="300" height="200">
+          <source src="/<%= video.get('video_file') %>" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <%= video.get("title") %>
+      </a>
     </script>
 
     <script id="main_menu_tpl" type="text/template">
@@ -60,7 +66,11 @@
             <a href="#upload" class="upload js-upload">Upload</a>
           </li>
           <li class="main-menu-item">
-            <a href="#videos" class="my-videos js-my-videos">My Videos</a>
+            <% if(localStorage.user_type == "admin"){ %>
+              <a href="#admin_videos" class="admin-videos js-all-videos">Admin</a>
+            <% }else{ %>
+              <a href="#videos" class="my-videos js-my-videos">My Videos</a>
+            <% } %>
           </li>
         <% } else { %>
           <li class="main-menu-item">
@@ -122,16 +132,18 @@
       <h3>My Videos</h3>
     </script>
     <script id="video_tpl" type="text/template">
-      <a class="my-videos-item" href="#videos/view/<%= video.get('id') %>">
-        <div class="preview">
-          <video width="200px" height="130px">
-            <source src="/home/vlatko/<%= video.get('video_file') %>" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-        <div class="title">
-          <h3><%= video.get("title") %></h3>
-        </div>
+      <div class="my-videos-item">
+        <a href="#videos/view/<%= video.get('id') %>">
+          <div class="preview">
+            <video width="200px" height="130px">
+              <source src="/home/vlatko/<%= video.get('video_file') %>" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          <div class="title">
+            <h3><%= video.get("title") %></h3>
+          </div>
+        </a>
         <div class="description">
           <% if(video.get("description").length > 20){ %>
             <%= video.get("description").substr(0, 20) + "..." %>
@@ -143,6 +155,42 @@
           Uploaded: <%= video.get("created_at").substr(0, 10) %>
         </div>
       </a>
+    </script>
+
+    <script id="admin_videos_tpl" type="text/template">
+      <h3>Admin Videos</h3>
+    </script>
+    <script id="admin_video_tpl" type="text/template">
+      <div class="my-videos-item">
+        <a href="#videos/view/<%= video.get('id') %>">
+          <div class="preview">
+            <video width="200px" height="130px">
+              <source src="/home/vlatko/<%= video.get('video_file') %>" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          <div class="title">
+            <h3><%= video.get("title") %></h3>
+          </div>
+        </a>
+        <div class="description">
+          <% if(video.get("description").length > 20){ %>
+            <%= video.get("description").substr(0, 20) + "..." %>
+          <% }else{ %>
+            <%= video.get("description") %>
+          <% } %>
+        </div>
+        <div class="created_at">
+          Uploaded: <%= video.get("created_at").substr(0, 10) %>
+        </div>
+        <div class="delete">
+          <button class="js-delete" data-id="<%= video.get('id') %>">Delete</button>
+        </div>
+        <div class="featured">
+          <% if(video.get('featured') == '1') { checked = "checked='checked'"; } else { checked = ""; } %>
+          <input type="checkbox" class="js-featured" data-id="<%= video.get('id') %>" <%= checked %> />Featured
+        </div>
+      </div>
     </script>
 
   </body>

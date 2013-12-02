@@ -23,14 +23,20 @@
       return pattern.test(email);
     },
     render_featured_videos: function() {
-      var i, _i, _results;
+      var videos;
       $(".featured-container").html("");
-      _results = [];
-      for (i = _i = 0; _i <= 3; i = ++_i) {
-        this.featured_video = new Video.FeaturedVideo();
-        _results.push($(".featured-container").append(this.featured_video.render().el));
-      }
-      return _results;
+      videos = new Video.Videos();
+      videos.url = window.Video.root_path + "videos/featured";
+      return videos.fetch({
+        success: function() {
+          return videos.each(function(video) {
+            this.featured_video = new Video.FeaturedVideo({
+              video: video
+            });
+            return $(".featured-container").append(this.featured_video.render().el);
+          });
+        }
+      });
     },
     render_defaults: function() {
       this.render_main_menu();
@@ -52,6 +58,7 @@
       "": "index",
       "home": "index",
       "videos": "my_videos",
+      "admin_videos": "admin_videos",
       "upload": "index",
       "videos/view/:id": "view"
     };
@@ -66,17 +73,37 @@
     };
 
     VideoRouter.prototype.my_videos = function() {
-      var _this = this;
+      var action;
       console.log("my videos");
+      action = "my_videos";
+      return this.render_index_videos(action);
+    };
+
+    VideoRouter.prototype.admin_videos = function() {
+      var action;
+      action = "admin_videos";
+      return this.render_index_videos(action);
+    };
+
+    VideoRouter.prototype.render_index_videos = function(action) {
+      var _this = this;
+      console.log("render_index_videos");
       this.render_main_menu();
       this.render_featured_videos();
       this.videos = new Video.Videos();
-      this.videos.url = window.Video.root_path + "videos/index?token=" + localStorage.token;
+      this.videos.url = window.Video.root_path + ("videos/" + action + "?token=") + localStorage.token;
       return this.videos.fetch({
         success: function() {
-          _this.my_videos_view = new Video.MyVideos({
-            collection: _this.videos
-          });
+          console.log(action);
+          if (action === "admin_videos") {
+            _this.my_videos_view = new Video.AdminVideos({
+              collection: _this.videos
+            });
+          } else {
+            _this.my_videos_view = new Video.MyVideos({
+              collection: _this.videos
+            });
+          }
           return $(".video-container").html(_this.my_videos_view.render().el);
         }
       });
@@ -170,6 +197,123 @@
 
   })(Backbone.Collection);
 
+  Video.AdminVideo = (function(_super) {
+
+    __extends(AdminVideo, _super);
+
+    function AdminVideo() {
+      return AdminVideo.__super__.constructor.apply(this, arguments);
+    }
+
+    AdminVideo.prototype.template = "#admin_video_tpl";
+
+    AdminVideo.prototype.className = "my-video";
+
+    AdminVideo.prototype.events = {
+      "click .js-delete": "delete",
+      "click .js-featured": "featured"
+    };
+
+    AdminVideo.prototype.initialize = function() {
+      _.extend(Video.AdminVideo.prototype, Video.Utils);
+      return _.bindAll(this, "render");
+    };
+
+    AdminVideo.prototype.render = function() {
+      var container, template;
+      if (localStorage.user_type === "admin") {
+        container = $(this.el);
+        this.video = this.options.video;
+        this.id = this.video.id;
+        template = _.template($(this.template).html(), {
+          video: this.video
+        });
+        container.html(template);
+        return this;
+      }
+    };
+
+    AdminVideo.prototype["delete"] = function(e) {
+      var self;
+      console.log("delete");
+      self = this;
+      if (confirm("Are you sure you want to delete this video?") === true) {
+        return $.ajax(window.Video.root_path + ("videos/" + this.id + "?token=" + localStorage.token), {
+          method: "DELETE",
+          success: function() {
+            $(self.el).remove();
+            return console.log("deleted");
+          }
+        });
+      }
+    };
+
+    AdminVideo.prototype.featured = function(e) {
+      var self, update_video;
+      console.log("featured");
+      self = this;
+      update_video = new Video.VideoModel();
+      update_video.url = "" + window.Video.root_path + "videos/" + this.id + "?token=" + localStorage.token;
+      if ($(e.target).prop("checked")) {
+        update_video.set({
+          id: this.id,
+          featured: "1"
+        });
+      } else {
+        update_video.set({
+          id: this.id,
+          featured: "0"
+        });
+      }
+      return update_video.save(null, {
+        success: function() {
+          self.render_featured_videos();
+          return console.log("success featured");
+        }
+      });
+    };
+
+    return AdminVideo;
+
+  })(Backbone.View);
+
+  Video.AdminVideos = (function(_super) {
+
+    __extends(AdminVideos, _super);
+
+    function AdminVideos() {
+      return AdminVideos.__super__.constructor.apply(this, arguments);
+    }
+
+    AdminVideos.prototype.template = "#admin_videos_tpl";
+
+    AdminVideos.prototype.className = "my-videos-list";
+
+    AdminVideos.prototype.initialize = function() {
+      return _.bindAll(this, "render");
+    };
+
+    AdminVideos.prototype.render = function() {
+      var container, template;
+      if (localStorage.user_type === "admin") {
+        container = $(this.el);
+        template = _.template($(this.template).html());
+        container.html(template);
+        this.collection.each(function(item) {
+          var view;
+          view = new Video.AdminVideo({
+            video: item
+          });
+          return $(container).append(view.render().el);
+        });
+        return this;
+      }
+    };
+
+    return AdminVideos;
+
+  })(Backbone.View);
+
   Video.FeaturedVideo = (function(_super) {
 
     __extends(FeaturedVideo, _super);
@@ -187,10 +331,11 @@
     };
 
     FeaturedVideo.prototype.render = function() {
-      var container, template;
+      var container, template, video;
       container = $(this.el);
+      video = this.options.video;
       template = _.template($(this.template).html(), {
-        test: "test123"
+        video: video
       });
       container.html(template);
       return this;
@@ -258,6 +403,9 @@
             success: function() {
               if (user.get(0) && user.get(1)) {
                 localStorage.token = user.get(1).token;
+                localStorage.user_type = user.get(1).user_type;
+                localStorage.email = user.get(1).email;
+                localStorage.name = user.get(1).name;
                 $(".popup").html("");
                 return self.render_main_menu();
               } else {

@@ -7,6 +7,7 @@ class Video.FeaturedVideo extends Backbone.View
 
   render: ->
     container = $(@el)
-    template = _.template( $(@template).html(), { test: "test123" } )
+    video = @options.video
+    template = _.template( $(@template).html(), { video: video } )
     container.html(template)
     this
