@@ -3,6 +3,7 @@ class Video.UploadForm extends Backbone.View
   className: "upload-form"
 
   initialize: ->
+    _.extend(Video.UploadForm.prototype, Video.Utils)
     _.bindAll this, "render"
 
   events:
@@ -33,6 +34,7 @@ class Video.UploadForm extends Backbone.View
         container.find(".js-upload-confirm").hide()
         container.find(".js-status").show().html("Error.")
         container.find(".video-metadata").hide()
+        self.handle_unauthorized() if data.jqXHR.status == 401
       done: (e, data) ->
         console.log data.result
         self.id = data.result[0].id

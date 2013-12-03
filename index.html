@@ -35,20 +35,23 @@
     </div>
 
     <script id="main_video_tpl" type="text/template">
-      <div class="title"><h3><%= video.get("title") %></h3></div>
-      <video width="100%" height="80%" controls>
-        <source src="/<%= video.get('video_file') %>" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-      <div class="description"><%= video.get('description') %></div>
+      <div class="video">
+        <video width="100%" height="80%" controls>
+          <source src="<%= video.get('video_file') %>" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div class="title">
+        <h3><%= video.get("title") %></h3>
+      </div>
+      <div class="description">
+        <%= video.get('description') %>
+      </div>
     </script>
 
     <script id="featured_video_tpl" type="text/template">
       <a href="#videos/view/<%= video.get('id') %>">
-        <video width="300" height="200">
-          <source src="/<%= video.get('video_file') %>" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
+        <img width="300" height="200" src="/<%= video.get('thumbnail') %>">
         <%= video.get("title") %>
       </a>
     </script>
@@ -135,10 +138,7 @@
       <div class="my-videos-item">
         <a href="#videos/view/<%= video.get('id') %>">
           <div class="preview">
-            <video width="200px" height="130px">
-              <source src="/home/vlatko/<%= video.get('video_file') %>" type="video/mp4">
-              Your browser does not support the video tag.
-            </video>
+            <img width="300" height="200" src="/<%= video.get('thumbnail') %>">
           </div>
           <div class="title">
             <h3><%= video.get("title") %></h3>
@@ -164,10 +164,7 @@
       <div class="my-videos-item">
         <a href="#videos/view/<%= video.get('id') %>">
           <div class="preview">
-            <video width="200px" height="130px">
-              <source src="/home/vlatko/<%= video.get('video_file') %>" type="video/mp4">
-              Your browser does not support the video tag.
-            </video>
+            <img width="300" height="200" src="/<%= video.get('thumbnail') %>">
           </div>
           <div class="title">
             <h3><%= video.get("title") %></h3>

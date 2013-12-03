@@ -24,4 +24,13 @@ Video.Utils = {
     @main_video = new Video.MainVideo()
     $(".video-container").html @main_video.render().el
 
+  handle_unauthorized: ->
+    localStorage.removeItem('email')
+    localStorage.removeItem('name')
+    localStorage.removeItem('token')
+    localStorage.removeItem('user_id')
+    localStorage.removeItem('user_type')
+    @render_main_menu()
+    alert("Please login")
+
 }

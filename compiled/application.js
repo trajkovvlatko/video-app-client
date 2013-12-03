@@ -43,6 +43,15 @@
       this.render_featured_videos();
       this.main_video = new Video.MainVideo();
       return $(".video-container").html(this.main_video.render().el);
+    },
+    handle_unauthorized: function() {
+      localStorage.removeItem('email');
+      localStorage.removeItem('name');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user_id');
+      localStorage.removeItem('user_type');
+      this.render_main_menu();
+      return alert("Please login");
     }
   };
 
@@ -86,7 +95,9 @@
     };
 
     VideoRouter.prototype.render_index_videos = function(action) {
-      var _this = this;
+      var self,
+        _this = this;
+      self = this;
       console.log("render_index_videos");
       this.render_main_menu();
       this.render_featured_videos();
@@ -105,6 +116,11 @@
             });
           }
           return $(".video-container").html(_this.my_videos_view.render().el);
+        },
+        error: function(collection, response, options) {
+          if (response.status === 401) {
+            return self.handle_unauthorized();
+          }
         }
       });
     };
@@ -243,6 +259,11 @@
           success: function() {
             $(self.el).remove();
             return console.log("deleted");
+          },
+          error: function(jqXHR, textStatus, errorThrow) {
+            if (jqXHR.status === 401) {
+              return self.handle_unauthorized();
+            }
           }
         });
       }
@@ -269,6 +290,11 @@
         success: function() {
           self.render_featured_videos();
           return console.log("success featured");
+        },
+        error: function(jqXHR, textStatus, errorThrow) {
+          if (jqXHR.status === 401) {
+            return self.handle_unauthorized();
+          }
         }
       });
     };
@@ -484,8 +510,12 @@
     };
 
     MainMenu.prototype.upload = function(e) {
-      this.upload_form = new Video.UploadForm();
-      return $(".popup").html(this.upload_form.render().el);
+      if (localStorage.token) {
+        this.upload_form = new Video.UploadForm();
+        return $(".popup").html(this.upload_form.render().el);
+      } else {
+        return this.handle_unauthorized();
+      }
     };
 
     return MainMenu;
@@ -702,6 +732,7 @@
     UploadForm.prototype.className = "upload-form";
 
     UploadForm.prototype.initialize = function() {
+      _.extend(Video.UploadForm.prototype, Video.Utils);
       return _.bindAll(this, "render");
     };
 
@@ -736,7 +767,10 @@
           console.log('fail');
           container.find(".js-upload-confirm").hide();
           container.find(".js-status").show().html("Error.");
-          return container.find(".video-metadata").hide();
+          container.find(".video-metadata").hide();
+          if (data.jqXHR.status === 401) {
+            return self.handle_unauthorized();
+          }
         },
         done: function(e, data) {
           console.log(data.result);

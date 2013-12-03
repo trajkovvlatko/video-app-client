@@ -25,6 +25,7 @@ class Video.VideoRouter extends Backbone.Router
     @render_index_videos(action)
 
   render_index_videos: (action) ->
+    self = @
     console.log "render_index_videos"
     @render_main_menu()
     @render_featured_videos()
@@ -38,6 +39,8 @@ class Video.VideoRouter extends Backbone.Router
         else
           @my_videos_view = new Video.MyVideos({ collection: @videos })
         $(".video-container").html @my_videos_view.render().el
+      error: (collection, response, options) ->
+        self.handle_unauthorized() if response.status == 401
 
   view: (id) ->
     @render_main_menu()

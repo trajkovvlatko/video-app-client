@@ -28,6 +28,8 @@ class Video.AdminVideo extends Backbone.View
         success: ->
           $(self.el).remove()
           console.log "deleted"
+        error: (jqXHR, textStatus, errorThrow) ->
+          self.handle_unauthorized() if jqXHR.status == 401
 
   featured: (e) ->
     console.log "featured"
@@ -42,3 +44,5 @@ class Video.AdminVideo extends Backbone.View
       success: ->
         self.render_featured_videos()
         console.log "success featured"
+      error: (jqXHR, textStatus, errorThrow) ->
+        self.handle_unauthorized() if jqXHR.status == 401

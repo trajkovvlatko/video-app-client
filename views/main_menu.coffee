@@ -31,6 +31,9 @@ class Video.MainMenu extends Backbone.View
     $(".popup").html @register_form.render().el
 
   upload: (e) ->
-    @upload_form = new Video.UploadForm()
-    $(".popup").html @upload_form.render().el
+    if localStorage.token
+      @upload_form = new Video.UploadForm()
+      $(".popup").html @upload_form.render().el
+    else
+      @handle_unauthorized()
 

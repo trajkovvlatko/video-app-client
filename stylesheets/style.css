@@ -118,8 +118,9 @@ form{
 
 .video{
   height: 100%;
-  margin: 0 auto;
+  /* margin: 0 auto; */
   width: 80%;
+  float: left
 }
 
 .featured-container{
