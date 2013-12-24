@@ -8,7 +8,7 @@ class Video.UploadForm extends Backbone.View
 
   events:
     "click .js-upload-cancel" : "cancel"
-    "click .js-upload-confirm" : "confirm"
+    "click .js-upload-save" : "save"
 
   render: ->
     self = @
@@ -20,18 +20,18 @@ class Video.UploadForm extends Backbone.View
     $(@el).find('.js-upload-form').fileupload
       add: (e, data) ->
         console.log "add"
-        data.form.context.action = window.Video.root_path + "videos/create?token=" + localStorage.token
+        data.form.context.action = window.Video.root_path + "videos/create"
         console.log data
         data.submit()
         container.find(".js-status").show().html("Starting upload.")
-        container.find(".js-upload-confirm").show()
+        container.find(".js-upload-save").show()
         container.find(".video-metadata").show()
       progress: (e, data) ->
         container.find(".js-status").show().html("Uploading...")
         console.log('progress')
       fail: (e, data) ->
         console.log('fail')
-        container.find(".js-upload-confirm").hide()
+        container.find(".js-upload-save").hide()
         container.find(".js-status").show().html("Error.")
         container.find(".video-metadata").hide()
         self.handle_unauthorized() if data.jqXHR.status == 401
@@ -39,8 +39,8 @@ class Video.UploadForm extends Backbone.View
         console.log data.result
         self.id = data.result[0].id
         console.log self.id
-        container.find(".js-status").show().html("Upload successful.")
-        container.find(".js-upload-confirm").show()
+        container.find(".js-status").show().html("Upload successful. <br />Video will be active after transcoding.")
+        container.find(".js-upload-save").show()
         container.find(".video-metadata").show()
     this
 
@@ -50,19 +50,20 @@ class Video.UploadForm extends Backbone.View
     e.preventDefault()
     $(".popup").html ""
 
-  confirm: (e) ->
-    console.log "confirm"
+  save: (e) ->
+    console.log "save"
     e.preventDefault()
     self = @
     title = $(self.el).find(".js-video-title").val()
     description = $(self.el).find(".js-video-description").val()
     if title != ""
       video = new Video.VideoModel()
-      video.url = window.Video.root_path + "videos/" + self.id + "?token=" + localStorage.token
-      video.set({ id: self.id, title: title, description: description, confirmed: "1" })
+      video.url = window.Video.root_path + "videos/" + self.id
+      video.set({ id: self.id, title: title, description: description })
       video.save null,
-        success: ->
-          window.location = "#videos/view/#{video.id}"
+        success: (res) ->
+          if res.changed[0].confirmed == "1"
+            window.location = "#videos/view/#{video.id}"
           $(".popup").html ""
     else
       $(self.el).find(".js-video-title").addClass "error"

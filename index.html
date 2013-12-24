@@ -17,7 +17,7 @@
   <body>
     <div class="top">
       <div class="logo">
-        <img src="http://placehold.it/350x120" alt="" />
+        <!-- <img src="http://placehold.it/350x120" alt="" /> -->
       </div>
       <div class="video-container">
       </div>
@@ -51,7 +51,7 @@
 
     <script id="featured_video_tpl" type="text/template">
       <a href="#videos/view/<%= video.get('id') %>">
-        <img width="300" height="200" src="/<%= video.get('thumbnail') %>">
+        <img width="320" height="240" src="<%= video.get('thumbnail') %>">
         <%= video.get("title") %>
       </a>
     </script>
@@ -61,7 +61,7 @@
         <li class="main-menu-item">
           <a href="#home">Home</a>
         </li>
-        <% if(localStorage.token){ %>
+        <% if(localStorage.email){ %>
           <li class="main-menu-item">
             <a href="#home" class="logout js-logout">Logout</a>
           </li>
@@ -125,7 +125,7 @@
           <textarea class="js-video-description" placeholder="Description"></textarea>
         </div>
         <div class="actions">
-          <button class="js-upload-confirm hidden">Confirm</button>
+          <button class="js-upload-save hidden">Save</button>
           <button class="js-upload-cancel">Cancel</button>
         </div>
       </form>
@@ -138,7 +138,7 @@
       <div class="my-videos-item">
         <a href="#videos/view/<%= video.get('id') %>">
           <div class="preview">
-            <img width="300" height="200" src="/<%= video.get('thumbnail') %>">
+            <img width="200" height="140" src="<%= video.get('thumbnail') %>">
           </div>
           <div class="title">
             <h3><%= video.get("title") %></h3>
@@ -164,7 +164,7 @@
       <div class="my-videos-item">
         <a href="#videos/view/<%= video.get('id') %>">
           <div class="preview">
-            <img width="300" height="200" src="/<%= video.get('thumbnail') %>">
+            <img width="200" height="140" src="<%= video.get('thumbnail') %>">
           </div>
           <div class="title">
             <h3><%= video.get("title") %></h3>

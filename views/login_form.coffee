@@ -39,11 +39,12 @@ class Video.LoginForm extends Backbone.View
           type: 'POST'
           contentType: "application/x-www-form-urlencoded"
           success: ->
-            if user.get(0) && user.get(1)
+            if user.get(0)
+              localStorage.user_type = user.get(0).user_type
+              localStorage.email = user.get(0).email
+              localStorage.name = user.get(0).name
               localStorage.token = user.get(1).token
-              localStorage.user_type = user.get(1).user_type
-              localStorage.email = user.get(1).email
-              localStorage.name = user.get(1).name
+              self.set_before_ajax()
               $(".popup").html ""
               self.render_main_menu()
             else

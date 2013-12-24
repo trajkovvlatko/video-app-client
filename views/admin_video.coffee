@@ -23,7 +23,7 @@ class Video.AdminVideo extends Backbone.View
     console.log "delete"
     self = @
     if confirm("Are you sure you want to delete this video?") == true
-      $.ajax  window.Video.root_path + "videos/#{@id}?token=#{localStorage.token}",
+      $.ajax  window.Video.root_path + "videos/#{@id}",
         method: "DELETE"
         success: ->
           $(self.el).remove()
@@ -35,7 +35,7 @@ class Video.AdminVideo extends Backbone.View
     console.log "featured"
     self = @
     update_video = new Video.VideoModel()
-    update_video.url = "#{window.Video.root_path}videos/#{@id}?token=#{localStorage.token}"
+    update_video.url = "#{window.Video.root_path}videos/#{@id}"
     if $(e.target).prop("checked")
       update_video.set({ id: @id, featured: "1" })
     else

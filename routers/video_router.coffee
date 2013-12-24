@@ -27,10 +27,11 @@ class Video.VideoRouter extends Backbone.Router
   render_index_videos: (action) ->
     self = @
     console.log "render_index_videos"
+    @set_before_ajax()
     @render_main_menu()
     @render_featured_videos()
     @videos = new Video.Videos()
-    @videos.url = window.Video.root_path + "videos/#{action}?token=" + localStorage.token
+    @videos.url = window.Video.root_path + "videos/#{action}"
     @videos.fetch
       success: =>
         console.log action
@@ -43,6 +44,7 @@ class Video.VideoRouter extends Backbone.Router
         self.handle_unauthorized() if response.status == 401
 
   view: (id) ->
+    @set_before_ajax()
     @render_main_menu()
     @render_featured_videos()
     videos = new Video.Videos()

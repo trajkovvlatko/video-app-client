@@ -22,15 +22,20 @@ Video.Utils = {
     @render_main_menu()
     @render_featured_videos()
     @main_video = new Video.MainVideo()
+    @set_before_ajax()
     $(".video-container").html @main_video.render().el
 
   handle_unauthorized: ->
     localStorage.removeItem('email')
     localStorage.removeItem('name')
     localStorage.removeItem('token')
-    localStorage.removeItem('user_id')
     localStorage.removeItem('user_type')
     @render_main_menu()
     alert("Please login")
+
+  set_before_ajax: ->
+    if localStorage.token
+      $.ajaxSetup beforeSend: (xhr) ->
+        xhr.setRequestHeader "token", localStorage.token
 
 }

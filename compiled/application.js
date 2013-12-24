@@ -7,7 +7,7 @@
     initialize: function() {
       console.log("Video app initialized");
       window.video_router = new Video.VideoRouter();
-      window.Video.root_path = "http://localhost:8080/restapi/api/";
+      window.Video.root_path = "http://192.168.0.102:8080/restapi/api/";
       return Backbone.history.start();
     }
   };
@@ -42,16 +42,25 @@
       this.render_main_menu();
       this.render_featured_videos();
       this.main_video = new Video.MainVideo();
+      this.set_before_ajax();
       return $(".video-container").html(this.main_video.render().el);
     },
     handle_unauthorized: function() {
       localStorage.removeItem('email');
       localStorage.removeItem('name');
       localStorage.removeItem('token');
-      localStorage.removeItem('user_id');
       localStorage.removeItem('user_type');
       this.render_main_menu();
       return alert("Please login");
+    },
+    set_before_ajax: function() {
+      if (localStorage.token) {
+        return $.ajaxSetup({
+          beforeSend: function(xhr) {
+            return xhr.setRequestHeader("token", localStorage.token);
+          }
+        });
+      }
     }
   };
 
@@ -99,10 +108,11 @@
         _this = this;
       self = this;
       console.log("render_index_videos");
+      this.set_before_ajax();
       this.render_main_menu();
       this.render_featured_videos();
       this.videos = new Video.Videos();
-      this.videos.url = window.Video.root_path + ("videos/" + action + "?token=") + localStorage.token;
+      this.videos.url = window.Video.root_path + ("videos/" + action);
       return this.videos.fetch({
         success: function() {
           console.log(action);
@@ -127,6 +137,7 @@
 
     VideoRouter.prototype.view = function(id) {
       var videos;
+      this.set_before_ajax();
       this.render_main_menu();
       this.render_featured_videos();
       videos = new Video.Videos();
@@ -254,7 +265,7 @@
       console.log("delete");
       self = this;
       if (confirm("Are you sure you want to delete this video?") === true) {
-        return $.ajax(window.Video.root_path + ("videos/" + this.id + "?token=" + localStorage.token), {
+        return $.ajax(window.Video.root_path + ("videos/" + this.id), {
           method: "DELETE",
           success: function() {
             $(self.el).remove();
@@ -274,7 +285,7 @@
       console.log("featured");
       self = this;
       update_video = new Video.VideoModel();
-      update_video.url = "" + window.Video.root_path + "videos/" + this.id + "?token=" + localStorage.token;
+      update_video.url = "" + window.Video.root_path + "videos/" + this.id;
       if ($(e.target).prop("checked")) {
         update_video.set({
           id: this.id,
@@ -427,11 +438,12 @@
             type: 'POST',
             contentType: "application/x-www-form-urlencoded",
             success: function() {
-              if (user.get(0) && user.get(1)) {
+              if (user.get(0)) {
+                localStorage.user_type = user.get(0).user_type;
+                localStorage.email = user.get(0).email;
+                localStorage.name = user.get(0).name;
                 localStorage.token = user.get(1).token;
-                localStorage.user_type = user.get(1).user_type;
-                localStorage.email = user.get(1).email;
-                localStorage.name = user.get(1).name;
+                self.set_before_ajax();
                 $(".popup").html("");
                 return self.render_main_menu();
               } else {
@@ -500,8 +512,11 @@
     };
 
     MainMenu.prototype.logout = function(e) {
-      localStorage.removeItem("token");
-      return this.render_main_menu();
+      $.ajax(window.Video.root_path + "users/logout", this.render_main_menu());
+      localStorage.removeItem("email");
+      localStorage.removeItem("name");
+      localStorage.removeItem("user_type");
+      return localStorage.removeItem("token");
     };
 
     MainMenu.prototype.register = function(e) {
@@ -510,7 +525,7 @@
     };
 
     MainMenu.prototype.upload = function(e) {
-      if (localStorage.token) {
+      if (localStorage.email) {
         this.upload_form = new Video.UploadForm();
         return $(".popup").html(this.upload_form.render().el);
       } else {
@@ -738,7 +753,7 @@
 
     UploadForm.prototype.events = {
       "click .js-upload-cancel": "cancel",
-      "click .js-upload-confirm": "confirm"
+      "click .js-upload-save": "save"
     };
 
     UploadForm.prototype.render = function() {
@@ -752,11 +767,11 @@
       $(this.el).find('.js-upload-form').fileupload({
         add: function(e, data) {
           console.log("add");
-          data.form.context.action = window.Video.root_path + "videos/create?token=" + localStorage.token;
+          data.form.context.action = window.Video.root_path + "videos/create";
           console.log(data);
           data.submit();
           container.find(".js-status").show().html("Starting upload.");
-          container.find(".js-upload-confirm").show();
+          container.find(".js-upload-save").show();
           return container.find(".video-metadata").show();
         },
         progress: function(e, data) {
@@ -765,7 +780,7 @@
         },
         fail: function(e, data) {
           console.log('fail');
-          container.find(".js-upload-confirm").hide();
+          container.find(".js-upload-save").hide();
           container.find(".js-status").show().html("Error.");
           container.find(".video-metadata").hide();
           if (data.jqXHR.status === 401) {
@@ -776,8 +791,8 @@
           console.log(data.result);
           self.id = data.result[0].id;
           console.log(self.id);
-          container.find(".js-status").show().html("Upload successful.");
-          container.find(".js-upload-confirm").show();
+          container.find(".js-status").show().html("Upload successful. <br />Video will be active after transcoding.");
+          container.find(".js-upload-save").show();
           return container.find(".video-metadata").show();
         }
       });
@@ -792,25 +807,26 @@
       return $(".popup").html("");
     };
 
-    UploadForm.prototype.confirm = function(e) {
+    UploadForm.prototype.save = function(e) {
       var description, self, title, video;
-      console.log("confirm");
+      console.log("save");
       e.preventDefault();
       self = this;
       title = $(self.el).find(".js-video-title").val();
       description = $(self.el).find(".js-video-description").val();
       if (title !== "") {
         video = new Video.VideoModel();
-        video.url = window.Video.root_path + "videos/" + self.id + "?token=" + localStorage.token;
+        video.url = window.Video.root_path + "videos/" + self.id;
         video.set({
           id: self.id,
           title: title,
-          description: description,
-          confirmed: "1"
+          description: description
         });
         return video.save(null, {
-          success: function() {
-            window.location = "#videos/view/" + video.id;
+          success: function(res) {
+            if (res.changed[0].confirmed === "1") {
+              window.location = "#videos/view/" + video.id;
+            }
             return $(".popup").html("");
           }
         });

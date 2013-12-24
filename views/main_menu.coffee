@@ -23,15 +23,19 @@ class Video.MainMenu extends Backbone.View
     @render_main_menu()
 
   logout: (e) ->
-    localStorage.removeItem("token")
+    $.ajax window.Video.root_path + "users/logout",
     @render_main_menu()
+    localStorage.removeItem("email")
+    localStorage.removeItem("name")
+    localStorage.removeItem("user_type")
+    localStorage.removeItem("token")
 
   register: (e) ->
     @register_form = new Video.RegisterForm()
     $(".popup").html @register_form.render().el
 
   upload: (e) ->
-    if localStorage.token
+    if localStorage.email
       @upload_form = new Video.UploadForm()
       $(".popup").html @upload_form.render().el
     else
