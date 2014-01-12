@@ -118,9 +118,21 @@ form{
 
 .video{
   height: 100%;
-  /* margin: 0 auto; */
-  width: 80%;
-  float: left
+  width: 1000px;
+  margin: 0 auto;
+}
+
+.embed_video{
+  float: left;
+  width: 500px;
+  height: 300px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.title{
+  float: left;
+  width: 200px;
 }
 
 .featured-container{

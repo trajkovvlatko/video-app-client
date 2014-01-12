@@ -7,7 +7,7 @@
     initialize: function() {
       console.log("Video app initialized");
       window.video_router = new Video.VideoRouter();
-      window.Video.root_path = "http://192.168.0.102:8080/restapi/api/";
+      window.Video.root_path = "http://localhost:8080/restapi/api/";
       return Backbone.history.start();
     }
   };
@@ -144,10 +144,24 @@
       videos.url = window.Video.root_path + "videos/view/" + id;
       return videos.fetch({
         success: function() {
+          var main_video, main_video_path, rtmp_video_path;
           this.main_video = new Video.MainVideo({
             videos: videos
           });
-          return $(".video-container").html(this.main_video.render().el);
+          $(".video-container").html(this.main_video.render().el);
+          main_video = videos.models[0];
+          main_video_path = main_video.get("transcoded_file_url");
+          main_video_path = main_video_path.replace("http://localhost/video-app-uploads/", "");
+          rtmp_video_path = "rtmp://localhost:1935/vod/mp4:" + main_video_path;
+          console.log(rtmp_video_path);
+          return jwplayer("playerDvYNTTfdXjSG").setup({
+            file: rtmp_video_path,
+            image: main_video.get("thumbnail_url"),
+            title: main_video.get("title"),
+            width: "200px",
+            height: "200px",
+            fallback: "false"
+          });
         }
       });
     };
@@ -285,7 +299,7 @@
       console.log("featured");
       self = this;
       update_video = new Video.VideoModel();
-      update_video.url = "" + window.Video.root_path + "videos/" + this.id;
+      update_video.url = "" + window.Video.root_path + "videos/feature/" + this.id;
       if ($(e.target).prop("checked")) {
         update_video.set({
           id: this.id,
@@ -546,8 +560,6 @@
     }
 
     MainVideo.prototype.template = "#main_video_tpl";
-
-    MainVideo.prototype.className = "video";
 
     MainVideo.prototype.initialize = function() {
       return _.bindAll(this, "render");

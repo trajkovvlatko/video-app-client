@@ -35,7 +35,7 @@ class Video.AdminVideo extends Backbone.View
     console.log "featured"
     self = @
     update_video = new Video.VideoModel()
-    update_video.url = "#{window.Video.root_path}videos/#{@id}"
+    update_video.url = "#{window.Video.root_path}videos/feature/#{@id}"
     if $(e.target).prop("checked")
       update_video.set({ id: @id, featured: "1" })
     else
