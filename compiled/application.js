@@ -7,7 +7,7 @@
     initialize: function() {
       console.log("Video app initialized");
       window.video_router = new Video.VideoRouter();
-      window.Video.root_path = "http://localhost:8080/restapi/api/";
+      window.Video.root_path = "http://192.168.0.103:8080/restapi/api/";
       return Backbone.history.start();
     }
   };
@@ -151,8 +151,8 @@
           $(".video-container").html(this.main_video.render().el);
           main_video = videos.models[0];
           main_video_path = main_video.get("transcoded_file_url");
-          main_video_path = main_video_path.replace("http://localhost/video-app-uploads/", "");
-          rtmp_video_path = "rtmp://localhost:1935/vod/mp4:" + main_video_path;
+          main_video_path = main_video_path.replace("http://192.168.0.103/video-app-uploads/", "");
+          rtmp_video_path = "rtmp://192.168.0.103:1935/vod/mp4:" + main_video_path;
           console.log(rtmp_video_path);
           return jwplayer("playerDvYNTTfdXjSG").setup({
             file: rtmp_video_path,
@@ -566,7 +566,8 @@
     };
 
     MainVideo.prototype.render = function() {
-      var container, self, template, video;
+      var container, self, video,
+        _this = this;
       container = $(this.el);
       self = this;
       if (this.options.videos) {
@@ -579,15 +580,26 @@
         });
       } else {
         video = new Video.VideoModel();
-        video.set({
-          title: "default title",
-          video_file: "1.mp4",
-          description: "desc"
+        video.url = window.Video.root_path + "videos/view/36";
+        video.fetch({
+          success: function() {
+            var rtmp_video_path, template;
+            video = new Video.VideoModel(video.get("0"));
+            template = _.template($(_this.template).html(), {
+              video: video
+            });
+            container.html(template);
+            rtmp_video_path = "rtmp://192.168.0.103:1935/vod/mp4:2/135881aa04947e27c82999be01276888/135881aa04947e27c82999be01276888.transcoded.mp4";
+            return jwplayer("playerDvYNTTfdXjSG").setup({
+              file: rtmp_video_path,
+              image: video.get("thumbnail_url"),
+              title: video.get("title"),
+              width: "200px",
+              height: "200px",
+              fallback: "false"
+            });
+          }
         });
-        template = _.template($(this.template).html(), {
-          video: video
-        });
-        container.html(template);
       }
       return this;
     };

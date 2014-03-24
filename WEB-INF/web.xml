@@ -20,7 +20,7 @@
       <filter-mapping>
           <filter-name>CORS</filter-name>
           <url-pattern>/*</url-pattern>
-          <url-pattern>localhost</url-pattern>
+          <url-pattern>192.168.0.103</url-pattern>
       </filter-mapping>
     </servlet>
     <servlet-mapping>
