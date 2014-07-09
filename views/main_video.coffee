@@ -20,7 +20,7 @@ class Video.MainVideo extends Backbone.View
           video = new Video.VideoModel(video.get("0"))
           template = _.template( $(@template).html(), { video: video } )
           container.html(template)
-          rtmp_video_path = "rtmp://192.168.0.103:1935/vod/mp4:2/135881aa04947e27c82999be01276888/135881aa04947e27c82999be01276888.transcoded.mp4"
+          rtmp_video_path = "rtmp://localhost:1935/vod/mp4:2/135881aa04947e27c82999be01276888/135881aa04947e27c82999be01276888.transcoded.mp4"
           jwplayer("playerDvYNTTfdXjSG").setup
             file: rtmp_video_path
             image: video.get("thumbnail_url")

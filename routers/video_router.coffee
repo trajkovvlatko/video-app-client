@@ -55,8 +55,8 @@ class Video.VideoRouter extends Backbone.Router
         $(".video-container").html @main_video.render().el
         main_video = videos.models[0]
         main_video_path = main_video.get("transcoded_file_url")
-        main_video_path = main_video_path.replace("http://192.168.0.103/video-app-uploads/", "")
-        rtmp_video_path = "rtmp://192.168.0.103:1935/vod/mp4:" + main_video_path
+        main_video_path = main_video_path.replace("http://localhost/video-app-uploads/", "")
+        rtmp_video_path = "rtmp://localhost:1935/vod/mp4:" + main_video_path
         console.log rtmp_video_path
 
         jwplayer("playerDvYNTTfdXjSG").setup
